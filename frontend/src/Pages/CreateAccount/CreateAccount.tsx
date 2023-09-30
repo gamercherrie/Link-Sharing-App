@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom';
 import { Logo, emailSymbol, passwordSymbol} from '../../assets';
 import './CreateAccount.sass'
@@ -8,7 +8,7 @@ interface IAccount {
     password: string,
     confirmPassword: string
 }
-
+//TO-DO: When user clicks on a suggested username have input read it too.
 const CreateAccount = () => {
 
     const [account, setAccount] = useState<IAccount>({
@@ -26,46 +26,49 @@ const CreateAccount = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>)  => {
         const {name, value} = e.target
         setAccount(prevData => ({...prevData, [name]: value}))
+        validateCurrentInput(name as keyof IAccount, value)
     }
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if(validate()){
-            //make a POST
+            const response = await fetch('/add-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/JSON'},
+                body: JSON.stringify(account)
+            })
 
         }
     }
 
-    const validate = () : Boolean => {
+    const validateCurrentInput = (name?: keyof IAccount, value?: string) => {
         let isValid = true
 
         setError(prev => {
-            const stateObj: IAccount = {
-                email: '',
-                password: '',
-                confirmPassword: ''
-            };
             
-            for(let name in account){
-                switch(name){
+
+            const stateObj: IAccount = name ? {...prev, [name]: ''} :  {...prev}
+
+            const validateField = (fieldName: string, fieldValue: string) => {
+                switch(fieldName){
                     case "email":
-                        if(!account[name]){
-                            stateObj[name] = "Can't be empty"
+                        if(!account[fieldName]){
+                            stateObj[fieldName] = "Can't be empty"
                             isValid = false
                         }
                         break
                     case "password":
-                        if(!account[name]){
-                            stateObj[name] = "Please enter password"
-                        } else if (account.confirmPassword && account[name] !== account.confirmPassword){
-                            stateObj['confirmPassword'] = "Password do not match. Please check again."
+                        if(!account[fieldName]){
+                            stateObj[fieldName] = "Please enter password"
+                        } else if (account.confirmPassword && account[fieldName] !== account.confirmPassword){
+                            stateObj['confirmPassword'] = "Password do not match."
                         } else if(account.password && account.password.length < 8) {
-                            stateObj[name] = "Your password must be atleast 8 characters."
+                            stateObj[fieldName] = "Your password must be atleast 8 characters."
                         }
                         break
                     case "confirmPassword":
-                        if(!account[name]){
-                            stateObj[name] = "This field cannot be empty"
+                        if(!account[fieldName]){
+                            stateObj[fieldName] = "This field cannot be empty"
                         }
                         break
                     default:
@@ -76,14 +79,24 @@ const CreateAccount = () => {
                 }
             }
 
-            return stateObj
+            if(name && value){
+                validateField(name, value)
+            }else{
+                for(let fieldName in account){
+                    validateField(fieldName, account[fieldName as keyof IAccount])
+                }
+            }
 
+            return stateObj
         })
 
         return isValid
+    }
+
+    const validate = () : Boolean => {
+        return validateCurrentInput()
 
     }
-    console.log('set-acc', account)
 
     return (
         <div className="create-account">
@@ -97,22 +110,22 @@ const CreateAccount = () => {
                 <div className="create-account__form">
                     <form onSubmit={handleSubmit}>
                         <div className="create-account__form-input">
-                            <label>Email address</label>
-                            <input name="email" type="text" onChange={e => handleChange(e)} value={account.email} placeholder='e.g.alex@email.com'/>
+                            <label className={error.email ? 'error-text' : undefined}>Email address</label>
+                            <input className={error.email ? 'error-input' : undefined} name="email" type="text" onChange={e => handleChange(e)} value={account.email} placeholder='e.g.alex@email.com'/>
                             <img src={emailSymbol} alt="email symbol"/>
-                            {error.email && <span className='text-danger'>{error.email}</span>}
+                            {error.email && <span>{error.email}</span>}
                         </div>
                         <div className="create-account__form-input">
-                            <label>Create Password</label>
-                            <input name="password" type="password" onChange={e => handleChange(e)} value={account.password}placeholder='Atleast 8 characters'/>
+                            <label className={error.password ? 'error-text' : undefined}>Create Password</label>
+                            <input className={error.password ? 'error-input' : undefined} name="password" type="password" onChange={e => handleChange(e)} value={account.password}placeholder='Atleast 8 characters'/>
                             <img src={passwordSymbol} alt="email symbol"/>
-                            {error.password && <span className='text-danger'>{error.password}</span>}
+                            {error.password && <span>{error.password}</span>}
                         </div>
                         <div className="create-account__form-input">
-                            <label>Confirm Password</label>
-                            <input name="confirmPassword" type="password" onChange={e => handleChange(e)} value={account.confirmPassword} placeholder='Atleast 8 characters'/>
+                            <label className={error.confirmPassword ? 'error-text' : undefined}>Confirm Password</label>
+                            <input className={error.confirmPassword ? 'error-input' : undefined} name="confirmPassword" type="password" onChange={e => handleChange(e)} value={account.confirmPassword} placeholder='Atleast 8 characters'/>
                             <img src={passwordSymbol} alt="email symbol"/>
-                            {error.confirmPassword && <span className='text-danger'>{error.confirmPassword}</span>}
+                            {error.confirmPassword && <span>{error.confirmPassword}</span>}
                         </div>
                         <p>Password must contain at least 8 characters</p>
                         <div className='create-account__button'>

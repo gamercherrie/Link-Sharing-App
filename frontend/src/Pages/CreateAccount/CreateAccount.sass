@@ -70,7 +70,16 @@
                 position: absolute
                 top: 3.7rem
                 left: 1.6rem
+            span
+                color: $Red
+                text-align: right
+                font-size: 1.2rem
+                position: absolute
+                right: 1.2rem
+                top: 3.7rem
     &__button
+        margin-top: 2.4rem
+
         input
             padding: 1.1rem 2.7rem
             border-radius: 0.8rem
@@ -95,7 +104,6 @@
         align-items: center
         flex-direction: column
         font-size: 1.6rem
-
         p
             color: $Grey
             font-weight: 400
@@ -103,6 +111,11 @@
             color: $Purple
             text-decoration: none
             cursor: pointer
+.error
+    &-input
+        border: 1px solid $Red !important
+    &-text
+        color: $Red !important
 
 @media only screen and (min-width: 768px)
     .create-account
