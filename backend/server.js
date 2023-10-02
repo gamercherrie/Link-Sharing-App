@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bcrypt = require('bcrypt')
+const { serialize } = require('mongodb')
 const app = express()
 
 
@@ -33,7 +34,16 @@ const userSchema = mongoose.Schema({
 
 const User = mongoose.model("Users", userSchema)
 
-app.get('/login', (req, res) => {
+app.post('/login', async(req, res) => {
+    const user = await User.findOne({ email: req.body.email });
+    if(!user) 
+        return res.status(400).send('Account does not exist.');
+        
+    if(await bcrypt.compare(req.body.password, user.password)){
+        res.send('User logged in successfully')
+    }else{
+        res.send('Sorry, your password was incorrect.\nPlease double check your password.')
+    }
 
 })
 
