@@ -1,4 +1,4 @@
-import React , {useState} from 'react';
+import React , {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { Logo, emailSymbol, passwordSymbol} from '../../assets';
 import './Login.sass';
@@ -22,28 +22,29 @@ const Login = () => {
     })
 
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target
-        setLogin(prev => ({...prev, [name]: value}))
+        const { name, value } = e.target
 
-        setError(prev => {
-            const state : IUser = {...prev, [name]: ''}
+        const newLoginState = { ...login, [name]: value }
 
-            switch(name){
-                case 'email':
-                    if(!login[name])
-                        state[name] = "Email can't be empty."
-                        break
-                case 'password':
-                    if(!login[name])
-                        state[name] = "Password can't be empty."
-                        break
+        console.log('prospective login state:', newLoginState);
 
-            }
-
-            return state
-            
-        });
+        let newErrorState = { ...error, [name]: '' }
+        console.log('newErrorstate', newErrorState)
+        switch (name) {
+            case 'email':
+                if (!newLoginState[name])
+                    newErrorState[name] = "Email can't be empty."
+                break
+            case 'password':
+                if (!newLoginState[name])
+                    newErrorState[name] = "Password can't be empty."
+                break
+        }
+        setLogin(newLoginState)
+        setError(newErrorState)
     }
+
+    console.log('login')
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const response = await fetch('/login', {
@@ -70,14 +71,14 @@ const Login = () => {
                     <div className="login__form-input">
                         <label className={error.email ? 'error-text' : undefined}>Email address</label>
                         <input className={error.email ? 'error-input' : undefined} name="email" type="text" onChange={handleChange} placeholder='e.g.alex@email.com'/>
-                        { error.email && <p>Can't be empty</p>}
+                        { error.email && <p>{error.email}</p>}
                         <img src={emailSymbol} alt="email symbol"/>
                     </div>
                     <div className="login__form-input">
                         <label>Password</label>
                         <input type="password" placeholder='Enter your password' name="password" onChange={handleChange}/>
                         <img src={passwordSymbol} alt="email symbol"/>
-                        {error.password && <p>Can't be empty</p>}
+                        {error.password && <p>{error.password}</p>}
                     </div>
                     <div className='login__button'>
                         <input value="Login" type="submit" name="button"/>
