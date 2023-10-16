@@ -2,11 +2,12 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const bcrypt = require('bcrypt')
-const { serialize } = require('mongodb')
 const jwt = require('jsonwebtoken')
-const { nextConnectionId } = require('mongoose')
 const { Schema } = require('mongoose')
+const redis = require('redis')
+
 const app = express()
+const client = redis.createClient()
 
 
 
