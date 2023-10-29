@@ -1,0 +1,144 @@
+@import '../../utilities/_variables.sass'
+
+.create-account
+    display: flex
+    flex-direction: column
+    justify-content: center
+    height: 100vh
+    
+    &__header 
+        padding: 3.2rem
+    &__container
+        margin: 3.2rem 
+    &__details
+        font-family: 'Instrument Sans', sans-serif
+        p
+            color: $Grey
+            font-size: 1.6rem
+            font-weight: 400
+            line-height: 150%
+            span 
+                font-size: 2.4rem
+                line-height: 150%
+                color: $Dark-Grey
+                font-weight: 700
+                line-height: 150%
+
+                &::after
+                    content: "\a"
+                    white-space: pre
+    &__form
+        margin-top: 4rem
+        font-family: 'Instrument Sans', sans-serif
+        display: flex
+        flex-direction: column
+        gap: 1.2rem
+        align-self: stretch
+
+        form 
+            p
+                font-size: 1.2rem
+                color: $Grey
+
+        &-input
+            display: flex
+            flex-direction: column
+            position: relative
+            margin-bottom: 2.4rem
+            
+            label
+                font-size: 1.2rem
+                font-weight: 400
+                line-height: 150%
+                color: $Dark-Grey
+                padding-bottom: 0.4rem
+            input
+                border-radius: 0.8rem
+                border: 1px solid $Borders
+                background: $White
+                padding: 1.2rem 1.6rem 1.2rem 4.2rem
+                font-size: 1.6rem
+                outline: none
+                &::placeholder
+                    opacity: 0.5
+                &:focus
+                    border: 1px solid $Purple
+                    border-radius: 0.8rem
+                    background: $White
+                    box-shadow: 0px 0px 32px 0px rgba(99, 60, 255, 0.25)
+            img
+                position: absolute
+                top: 3.7rem
+                left: 1.6rem
+            span
+                color: $Red
+                text-align: right
+                font-size: 1.2rem
+                position: absolute
+                right: 1.2rem
+                top: 3.7rem
+    &__button
+        margin-top: 2.4rem
+
+        input
+            padding: 1.1rem 2.7rem
+            border-radius: 0.8rem
+            border: none
+            outline: none
+            background-color: $Purple
+            gap: 0.8rem
+            align-items: center
+            width: 100%
+            color: $White
+            font-size: 1.6rem
+            font-weight: 600
+            line-height: 150%
+            cursor: pointer
+            &:hover
+                background-color: $Purple-hover
+                box-shadow: 0px 0px 32px 0px rgba(99, 60, 255, 0.25)
+    &__no-account
+        display: flex
+        justify-content: center
+        text-align: center
+        align-items: center
+        flex-direction: column
+        font-size: 1.6rem
+        p
+            color: $Grey
+            font-weight: 400
+        a
+            color: $Purple
+            text-decoration: none
+            cursor: pointer
+.error
+    &-input
+        border: 1px solid $Red !important
+    &-text
+        color: $Red !important
+
+@media only screen and (min-width: 768px)
+    .create-account
+        align-items: revert
+        &__header
+            display: flex
+            justify-content: center
+        &__container
+            background-color: $White
+            padding: 4rem
+            border-radius: 1.2rem
+            margin: 3.2rem 14.6rem
+        &__no-account
+            flex-direction: row
+            p
+                &::after
+                    content: "\a"
+                    padding-right: 0.15rem
+
+@media only screen and (min-width: 1024px)
+
+@media only screen and (min-width: 1440px)
+    .create-account
+        &__container 
+            margin: 3.2rem 40.6rem
+
