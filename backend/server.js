@@ -11,6 +11,8 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan')
 const app = express()
 const client = redis.createClient();
+const session = require('express-session')
+const cookie = require('cookie')
 
 app.use(morgan('dev'));
 app.use(bodyParser.json())
@@ -19,6 +21,16 @@ require('dotenv').config()
 app.use(express.json())
 app.use(cors())
 client.connect()
+
+app.use(session({
+    proxy: true,
+    secret: 'test',
+    cookie: {
+      secure: true
+    },
+    resave: true,
+    saveUninitialized: true       
+  }));
 
 client.on('connect', () => {
     console.log('Connected to Redis');
@@ -48,22 +60,45 @@ const userSchema = mongoose.Schema({
 
 const User = mongoose.model("Users", userSchema)
 
+const generateAccessToken = async(user) => {
+    const accessToken = jwt.sign({id: JSON.stringify(user._id)}, process.env.ACCESS_SECRET_TOKEN, { expiresIn: '10m' }); 
+    const refreshToken = jwt.sign({id: JSON.stringify(user._id)}, process.env.REFRESH_SECRET_TOKEN, { expiresIn: '7d' });
+    console.log('access?', accessToken)
+    console.log('refresh?', refreshToken)
+    return { accessToken, refreshToken }
+
+}
+
+const jwtHandler = async(req, res, next) => {
+    const accessToken = req.cookies.accessToken
+    jwt.verify(accessToken, process.env.ACCESS_SECRET_TOKEN, (err, decoded) => {
+        console.log('decoded?', decoded)
+        if (err){
+            return res.status(401).json({ valid: false, message: 'Invalid token.' });
+        }
+
+        console.log('grabbed token: ', accessToken)
+        next();
+    })
+}
+
 
 app.post('/login', async(req, res) => {    
     const user = await User.findOne({ email: req.body.email });
 
     console.log('user', user);
-    if(!user) return res.status(400).send('Account does not exist.');
+    if(!user) return res.status(401).send('Account does not exist.');
+    console.log('password that user entered', await bcrypt.compare(req.body.password, user.password));
 
     const verifiedPassword = await bcrypt.compare(req.body.password, user.password)
     if(!verifiedPassword)
-        return res.send('Sorry, your password was incorrect.\nPlease double check your password.')
+        return res.status(401).send({ message: 'Sorry, your password was incorrect.\nPlease double check your password.'})
     
     const { accessToken, refreshToken } = await generateAccessToken(user)
     
     client.set(refreshToken, user._id.toString(), { EX: 7 * 24 * 60 * 60, NX: true })
-
-    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false })
+    console.log('does it go here?')
+    res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, maxAge: 7 * 24 * 60 * 60 * 1000})
     res.cookie('accessToken', accessToken, { httpOnly: true, secure: false , maxAge: 10 * 60 * 1000}).status(200).json({ message: "Logged in successfully!" });
 
 })
@@ -86,6 +121,7 @@ app.post('/refresh-token', (req, res) => {
     })
 })
 
+
 app.post('/add-user', async(req, res) => {
     console.log('helloo', req.body);
     try{
@@ -105,13 +141,16 @@ app.post('/add-user', async(req, res) => {
     }
 })
 
-const generateAccessToken = async(user) => {
-    const accessToken = jwt.sign({id: JSON.stringify(user._id)}, 'access_secret', { expiresIn: '10m' }); 
-    const refreshToken = jwt.sign({id: JSON.stringify(user._id)}, 'refresh_secret', { expiresIn: '7d' });
-    console.log('access?', accessToken)
-    console.log('refresh?', refreshToken)
-    return { accessToken, refreshToken }
+app.get('/validate-token', jwtHandler, (req, res) => {
+    res.json({valid: true})
+})
+//NOTE: Not sure if this is the best way yet 
+app.post('/logout', (req, res) => {
+    res.cookie('accessToken', '', {expires: new Date(0), httpOnly: true, secure: false, path: '/' });
+    res.cookie('refreshToken', '', { expires: new Date(0), httpOnly: true, secure: false, path: '/'});
 
-}
+    res.status(200).send('Logged out successfully');
+})
+
 
 app.listen(process.env.PORT || 3001)

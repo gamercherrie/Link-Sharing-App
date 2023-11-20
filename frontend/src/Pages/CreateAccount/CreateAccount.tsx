@@ -8,7 +8,6 @@ interface IAccount {
     password: string,
     confirmPassword: string
 }
-//TO-DO: When user clicks on a suggested username have input read it too.
 const CreateAccount = () => {
 
     const [account, setAccount] = useState<IAccount>({
