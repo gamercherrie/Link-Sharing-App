@@ -1,6 +1,7 @@
 import React , {useState} from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Logo, emailSymbol, passwordSymbol} from '../../assets';
+import { useAuth } from '../../AuthProvider';
 import './Login.sass';
 
 interface IUser {
@@ -20,6 +21,9 @@ const Login = () => {
         password: '',
         response: ''
     })
+
+    const { login: loginAuthFn, authError, isAuthenticated} = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -46,15 +50,10 @@ const Login = () => {
 
     console.log('login')
     const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/JSON'},
-            body: JSON.stringify(login)
-        })
-        const status = await response.text()
-        setError(prevState => ({...prevState, response: status}))
-        console.log(response)
+        e.preventDefault();
+        const { email, password } = login;
+        await loginAuthFn(email, password)
+        if(isAuthenticated) navigate('/homepage')
     }
 
     return(
@@ -84,6 +83,7 @@ const Login = () => {
                         <input value="Login" type="submit" name="button"/>
                     </div>
                     {error.response && <span className='submission-error'>{error.response}</span>}
+                    {authError && <span className='submission-error'>{authError}</span>}
                 </form>
                 <div className='login__no-account'>
                     <p>Don't have an account?</p>
