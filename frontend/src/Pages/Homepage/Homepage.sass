@@ -1,0 +1,55 @@
+.homepage
+    &__header
+        display: flex
+        justify-content: space-between
+        background: white
+        padding: 1.6rem 1.6rem 1.6rem 2.4rem
+        align-items: center
+        border-radius: 1.2rem
+
+        &-links
+            display: flex
+            align-items: center
+                
+        &-profile
+            display: flex
+                
+.header
+    &__button
+        &-links
+            cursor: pointer
+            padding: 1.1rem 2.7rem
+            border-radius: 0.8rem
+            border: none
+            background: white
+            
+            svg
+                fill: #737373
+        &-profile
+            cursor: pointer
+            border-radius: 0.8rem
+            border: none
+            background: white
+                
+            svg
+                padding: 1.1rem 2.7rem
+                fill: #737373
+
+        &-preview
+            cursor: pointer
+            padding: 1.1rem 1.6rem
+            flex-direction: column
+            align-items: flex-start
+            gap: 0.8rem
+            border-radius: 0.8rem
+            border: 1px solid var(--Purple, #633CFF)
+            background-color: white
+
+            &:hover
+                background: var(--Light-Purple, #EFEBFF)
+
+.active-tab
+    background: #EFEBFF
+    
+    svg
+        fill: #633CFF
