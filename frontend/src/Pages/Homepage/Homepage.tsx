@@ -1,15 +1,19 @@
 import React, { useState } from 'react'
-import { useAuth } from '../../AuthProvider'
 import { logoSymbol, previewIcon } from '../../assets'
 import { LinkTab } from '../../Components/'
 import './Homepage.sass'
 
+interface IArrayInput {
+  type: string;
+  id: number;
+  value: string;
+}
+
+
 const Homepage = () => {
   const [ activeTab, setActiveTab ] = useState<string>("Link-Tab");
-  const {logout : logoutAuthfn} = useAuth();
-  const handleLogout = async() => {
-      await logoutAuthfn();    
-  }
+  const [ linkForms, setLinkForms ] = useState<IArrayInput>();
+ 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const { id } = e.currentTarget as HTMLButtonElement;
     console.log('The event target: ', e.currentTarget.id)
@@ -35,7 +39,11 @@ const Homepage = () => {
         <div className="homepage__main">
           { activeTab === 'Link-Tab' ? <LinkTab /> : <div>Profile Tab</div>}
         </div>
-        <button onClick={handleLogout}>Logout</button>
+        <section className="homepage__save">
+          <div className="homepage__save-frame">
+            <button>Save</button>
+          </div>
+        </section>
     </div>
   )
 }
